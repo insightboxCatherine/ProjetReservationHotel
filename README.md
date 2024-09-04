@@ -20,9 +20,9 @@
 
 -Faire le repository dans GitHub
 
--Installer Sourcetree: https://www.sourcetreeapp.com/
+-Installer SourceTree: https://www.sourcetreeapp.com/
 
--Lier le github avec sourcecode
+-Lier le github avec sourceTree
 
 -Créer des branches DEV
 

@@ -28,3 +28,6 @@ ProjetReservationHotel
 -Créer des branches DEV
 
 -Écrire les procédures dans README
+
+![diagramme de classe](https://github.com/user-attachments/assets/624ed7f3-46c6-4379-8ba3-b210455ad544)
+![Cas d'utilisation](https://github.com/user-attachments/assets/dcbb5d68-fc80-41fe-ab03-089b61adcf7f)

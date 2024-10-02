@@ -36,7 +36,7 @@ def getChambreParNumero(CHA_roomNumber: int):
              print(f"{chambre.CHA_roomNumber} {chambre.type_chambre.TYP_name} {len(chambre.type_chambre.chambre)}")
         
         return {"numéro de chambre": chambre.CHA_roomNumber,
-                 "type_chambre" : chambre.type_chambre.TYP_name}     
+                 "type_chambre" : chambre.type_chambre.TYP_name}  
     
 def creerTypeChambre(type_dto: chambreDTO):    
     with Session(engine) as session:

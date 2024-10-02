@@ -17,7 +17,8 @@ class Chambre(Base):
     PKCHA_roomID: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
     fk_PKTYP_id: Mapped[str] = mapped_column(ForeignKey("type_chambre.PKTYP_id"))
 
-    type_chambre: Mapped['TypeChambre'] = relationship("TypeChambre", back_populates="chambre")
+    type_chambre: Mapped['TypeChambre'] = relationship()
+    reservations: Mapped[List["Reservation"]] = relationship(back_populates="chambre")
 
 class TypeChambre(Base):
     __tablename__ = "type_chambre"
@@ -30,6 +31,20 @@ class TypeChambre(Base):
 
     chambre: Mapped[List["Chambre"]] = relationship(back_populates="type_chambre")
 
+class Reservation(Base):
+    __tablename__ = "reservation"
+
+    RES_startDate: Mapped[datetime]
+    RES_endDate: Mapped[datetime]
+    RES_pricePerDay: Mapped[float]
+    RES_infoReservation: Mapped[str]
+    PKRES_id: Mapped[UUID]= mapped_column(default=uuid4, primary_key=True)
+    fk_PKCLI_id: Mapped[str]= mapped_column(ForeignKey("client.PKCLI_id"))
+    fk_PKCHA_roomID: Mapped[str]= mapped_column(ForeignKey("chambre.PKCHA_roomID"))
+
+    client: Mapped['Client'] = relationship()
+    chambre: Mapped['Chambre'] = relationship()
+
 class Client(Base):
     __tablename__ = "client"
 
@@ -41,19 +56,9 @@ class Client(Base):
     CLI_courriel: Mapped[str]
     PKCLI_id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
     
-    reservation: Mapped[List['Reservation']] = relationship()    
+    reservation: Mapped[List['Reservation']] = relationship( back_populates="client")  
 
-class Reservation(Base):
-    __tablename__ = "reservation"
 
-    RES_startDate: Mapped[datetime]
-    RES_endDate: Mapped[datetime]
-    RES_pricePerDay: Mapped[float]
-    RES_infoReservation: Mapped[str]
-    PKRES_id: Mapped[UUID]= mapped_column(default=uuid4, primary_key=True)
-    fk_PKCLI_id: Mapped[str]= mapped_column(ForeignKey("client.PKCLI_id"))
-    fk_PKCHA_roomID: Mapped[str]= mapped_column(ForeignKey("chambre.PKCHA_roomID"))
-    
-    client: Mapped['Client'] = relationship(back_populates="reservation")
+
      
 

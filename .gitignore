@@ -1,0 +1,22 @@
+# Fichiers de bytecode Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environnement virtuel Python
+venv/
+env/
+.venv/
+.env/
+
+# Dossiers de configuration d'éditeur
+.vscode/
+.idea/
+
+# Logs et fichiers de build
+*.log
+*.out
+build/
+dist/
+*.egg-info/

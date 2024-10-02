@@ -2,6 +2,7 @@ from typing import List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
+from modele.chambre import TypeChambre
 
 class Base(DeclarativeBase):
     pass

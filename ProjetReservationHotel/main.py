@@ -1,16 +1,13 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from typing import Union
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy import select
 
-from modele.chambre import Chambre, TypeChambre
 from DTO.clientDTO import ClientDTO
 from metier.clientMetier import CreerClient,ChercherClient
 from DTO.chambreDTO import ChambreDTO
-from metier.chambreMetier import creerChambre, getChambreParNumero, creerTypeChambre
-from DTO.reservationDTO import Reservation
+from metier.chambreMetier import creerChambre, getChambreParNumero, CreerTypeChambre
+from DTO.reservationDTO import ReservationDTO
+from metier.reservationMetier import ModifierReservation, SupprimerReservation, CreerReservation
 
 engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
@@ -37,5 +34,13 @@ def create_client(client_dto: ClientDTO):
     return CreerClient(client_dto)
 
 @app.post("/modifierreservation")
-def modify_reservation():
-    return {}
+def modify_reservation(CLI_nom : str, reservation : ReservationDTO):
+    return ModifierReservation(CLI_nom, reservation)
+
+@app.post("/supprimerreservation")
+def delete_reservation(CLI_nom : str):
+    return SupprimerReservation(CLI_nom)
+
+@app.post("/creerreservation")
+def Creer_reservation(CLI_nom: str, CHA_roomNumber,reservation: ReservationDTO):
+    return CreerReservation(CLI_nom, CHA_roomNumber, reservation)

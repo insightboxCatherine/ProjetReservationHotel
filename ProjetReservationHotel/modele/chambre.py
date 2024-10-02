@@ -17,6 +17,7 @@ class Chambre(Base):
     FK_PKTYP_id: Mapped[str] = mapped_column(ForeignKey("Type_Chambre.PKTYP_id"))
 
     Type_Chambre: Mapped['TypeChambre'] = relationship()
+    reservations: Mapped[List["Reservation"]] = relationship(back_populates="chambre")
 
 class TypeChambre(Base):
     __tablename__ = "Type_Chambre"
@@ -54,3 +55,4 @@ class Reservation(Base):
     FK_PKCHA_roomID: Mapped[str] = mapped_column(ForeignKey("Chambre.PKCHA_roomID"))
 
     clients: Mapped[List["Client"]] = relationship(back_populates="Reservation")
+    chambre: Mapped["Chambre"] = relationship()

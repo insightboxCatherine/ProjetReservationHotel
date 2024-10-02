@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 
-
 class ClientDTO(BaseModel):
     CLI_nom: str
     CLI_prenom: str

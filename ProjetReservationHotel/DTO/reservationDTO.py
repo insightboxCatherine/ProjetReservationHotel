@@ -7,4 +7,3 @@ class ReservationDTO(BaseModel):
     RES_endDate: datetime
     RES_pricePerDay: float
     RES_infoReservation: str
-    FK_PKCLI_id : str

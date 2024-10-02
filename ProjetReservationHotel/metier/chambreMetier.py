@@ -11,7 +11,7 @@ engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Se
 
 def creerChambre(chambre: ChambreDTO):
      with Session(engine) as session:
-        stmt = select(TypeChambre).where(TypeChambre.TYP_name == chambre.type_chambre)
+        stmt = select(TypeChambre).where(TypeChambre.TYP_name == chambre.Type_chambre)
         result = session.execute(stmt)
         
         for typeChambre in result.scalars():
@@ -20,7 +20,7 @@ def creerChambre(chambre: ChambreDTO):
             CHA_roomNumber = chambre.CHA_roomNumber,
             CHA_availability = chambre.CHA_availability,
             CHA_otherInfo = chambre.CHA_otherInfo,
-            type_chambre = typeChambre
+            Type_chambre = typeChambre
             )
 
             session.add(nouvelleChambre)
@@ -38,7 +38,7 @@ def getChambreParNumero(CHA_roomNumber: int):
         return {"numÃ©ro de chambre": chambre.CHA_roomNumber,
                  "type_chambre" : chambre.Type_Chambre.TYP_name}     
     
-def creerTypeChambre(type_dto: ChambreDTO):    
+def CreerTypeChambre(type_dto: ChambreDTO):    
     with Session(engine) as session:
         try:
             nouveau_type = TypeChambre(

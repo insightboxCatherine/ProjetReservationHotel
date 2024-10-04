@@ -22,6 +22,7 @@ ProjetReservationHotel
 -Faire le repository dans GitHub
 
 -Installer Sourcetree: https://www.sourcetreeapp.com/
+[SourceTree.docx](https://github.com/user-attachments/files/17234710/SourceTree.docx)
 
 -Lier le github avec sourcecode
 

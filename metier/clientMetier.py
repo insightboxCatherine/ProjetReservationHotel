@@ -23,7 +23,7 @@ def CreerClient(client_dto: ClientDTO):
 def ChercherClient(CLI_nom: str):
       with Session(engine) as session:
 
-        stmtClient = select(Client).join(Reservation, Client.PKCLI_id == Reservation.FK_PKCLI_id).where(Client.CLI_nom == CLI_nom)
+        stmtClient = select(Client).where(Client.CLI_nom == CLI_nom)
         result = session.execute(stmtClient).scalars().first()
 
         print(stmtClient)

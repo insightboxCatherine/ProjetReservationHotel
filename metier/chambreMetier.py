@@ -2,16 +2,16 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, HTTPException
 
-from DTO import chambreDTO
+from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 
 from modele.chambre import Chambre, TypeChambre
 
 
-engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/hotel?driver=SQL+Server', use_setinputsizes=False)
+engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
-def creerChambre(chambre: chambreDTO):
+def CreerChambre(chambre: ChambreDTO):
      with Session(engine) as session:
-        stmt = select(TypeChambre).where(TypeChambre.TYP_name == chambre.type_chambre)
+        stmt = select(TypeChambre).where(TypeChambre.TYP_name == chambre.Type_chambre)
         result = session.execute(stmt)
         
         for typeChambre in result.scalars():
@@ -20,7 +20,7 @@ def creerChambre(chambre: chambreDTO):
             CHA_roomNumber = chambre.CHA_roomNumber,
             CHA_availability = chambre.CHA_availability,
             CHA_otherInfo = chambre.CHA_otherInfo,
-            type_chambre = typeChambre
+            Type_Chambre = typeChambre
             )
 
             session.add(nouvelleChambre)
@@ -28,17 +28,17 @@ def creerChambre(chambre: chambreDTO):
         
         return chambre
      
-def getChambreParNumero(CHA_roomNumber: int):
+def GetChambreParNumero(CHA_roomNumber: int):
     with Session(engine) as session:
         stmt = select(Chambre).where(Chambre.CHA_roomNumber == CHA_roomNumber)
         result = session.execute(stmt)
         for chambre in result.scalars():
-             print(f"{chambre.CHA_roomNumber} {chambre.type_chambre.TYP_name} {len(chambre.type_chambre.chambre)}")
+             print(f"{chambre.CHA_roomNumber} {chambre.Type_Chambre.TYP_name} {len(chambre.Type_Chambre.chambres)}")
         
         return {"numéro de chambre": chambre.CHA_roomNumber,
-                 "type_chambre" : chambre.type_chambre.TYP_name}  
+                 "type_chambre" : chambre.Type_Chambre.TYP_name}     
     
-def creerTypeChambre(type_dto: chambreDTO):    
+def CreerTypeChambre(type_dto: TypeChambreDTO):    
     with Session(engine) as session:
         try:
             nouveau_type = TypeChambre(

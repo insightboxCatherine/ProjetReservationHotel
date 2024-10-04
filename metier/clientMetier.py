@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, select
 from DTO.clientDTO import ClientDTO
 from modele.chambre import Client,Reservation
 
-engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/hotel?driver=SQL+Server', use_setinputsizes=False)
+engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerClient(client_dto: ClientDTO):
     with Session(engine) as session:
@@ -23,7 +23,7 @@ def CreerClient(client_dto: ClientDTO):
 def ChercherClient(CLI_nom: str):
       with Session(engine) as session:
 
-        stmtClient = select(Client).join(Reservation, Client.PKCLI_id == Reservation.fk_PKCLI_id).where(Client.CLI_nom == CLI_nom)
+        stmtClient = select(Client).where(Client.CLI_nom == CLI_nom)
         result = session.execute(stmtClient).scalars().first()
 
         print(stmtClient)

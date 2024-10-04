@@ -1,21 +1,22 @@
 from typing import List
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
-from modele.chambre import TypeChambre
+from sqlalchemy import Column, ForeignKey, Integer, DateTime, Float, String
+from sqlalchemy.orm import relationship
+from uuid import uuid4
+from sqlalchemy.dialects.postgresql import UUID
 
-class Base(DeclarativeBase):
-    pass
+from modele.chambre import Base
 
-class Client(Base):
-    __tablename__ = "client"
+class Reservation(Base):
+    __tablename__ = "reservation"
 
-    CLI_nom: Mapped[str]
-    CLI_prenom: Mapped[str]
-    CLI_adresse: Mapped[str]
-    CLI_mobile: Mapped[str]
-    CLI_motDePasse: Mapped[str]
-    PKCHA_roomID: Mapped[str] = mapped_column(primary_key=True)
-    fk_PKTYP_id: Mapped[str] = mapped_column(ForeignKey("type_chambre.PKTYP_id"))
+    PKRES_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    FK_PKCLI_id = Column(UUID(as_uuid=True), ForeignKey("client.PKCLI_id"))  
+    FK_PKCHA_roomID = Column(UUID(as_uuid=True), ForeignKey("chambre.PKCHA_roomID"))  
+    RES_startDate = Column(DateTime)
+    RES_endDate = Column(DateTime)
+    RES_pricePerDay = Column(Float)
+    RES_infoReservation = Column(String)
 
-    type_chambre: Mapped['TypeChambre'] = relationship()
+    client = relationship("Client", back_populates="reservations")
+    chambre = relationship("Chambre", back_populates="reservations")

@@ -4,7 +4,7 @@ class ChambreDTO(BaseModel):
     CHA_roomNumber: int
     CHA_availability : bool
     CHA_otherInfo: str
-    type_chambre: str
+    Type_chambre: str
 
 class TypeChambreDTO(BaseModel): 
     TYP_name: str

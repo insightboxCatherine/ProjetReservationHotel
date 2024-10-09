@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select
+import os
 
 from DTO.clientDTO import ClientDTO
-from modele.chambre import Client,Reservation
+from modele.chambre import Client
 
-engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
 def CreerClient(client_dto: ClientDTO):
     with Session(engine) as session:
@@ -29,13 +30,16 @@ def ChercherClient(CLI_nom: str):
         print(stmtClient)
         
         if result:
-            reservation = {
-                "ID de la réservations": result.Reservation.PKRES_id,
-                "Début de la réservation": result.Reservation.RES_startDate,
-                "Fin de la réservation": result.Reservation.RES_endDate,
-                "Prix par jour": result.Reservation.RES_pricePerDay,
-                "Informations": result.Reservation.RES_infoReservation
-            }
+            reservations = []
+
+            for reservation in result.Reservation:
+                reservations.append({
+                    "ID de la réservations": reservation.PKRES_id,
+                    "Début de la réservation": reservation.RES_startDate,
+                    "Fin de la réservation": reservation.RES_endDate,
+                    "Prix par jour": reservation.RES_pricePerDay,
+                    "Informations": reservation.RES_infoReservation
+                })
 
             return {
                 "ID du client": result.PKCLI_id,
@@ -43,7 +47,7 @@ def ChercherClient(CLI_nom: str):
                 "Prenom": result.CLI_prenom,
                 "Adresse": result.CLI_adresse,
                 "Mobile": result.CLI_mobile,
-                "Réservation": reservation,
+                "Réservation": reservations,
             }
         
         

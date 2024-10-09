@@ -1,13 +1,14 @@
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
+import os
 
 from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 
 from modele.chambre import Chambre, TypeChambre
 
 
-engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
      with Session(engine) as session:

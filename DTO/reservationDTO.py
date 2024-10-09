@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import datetime
-from modele.chambre import Reservation
 
 class ReservationDTO(BaseModel):
     RES_startDate: datetime

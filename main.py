@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from typing import Union
 from sqlalchemy import create_engine
+import os
 
 from DTO.clientDTO import ClientDTO
 from metier.clientMetier import CreerClient,ChercherClient
@@ -9,7 +10,7 @@ from metier.chambreMetier import CreerChambre, GetChambreParNumero, CreerTypeCha
 from DTO.reservationDTO import ReservationDTO
 from metier.reservationMetier import ModifierReservation, SupprimerReservation, CreerReservation
 
-engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
 app = FastAPI()
 #

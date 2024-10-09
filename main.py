@@ -12,7 +12,7 @@ from metier.reservationMetier import ModifierReservation, SupprimerReservation, 
 engine = create_engine('mssql+pyodbc://GRINDLUPC\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
 app = FastAPI()
-
+#
 @app.get("/chambre/{No_chambre}")
 def read_item(CHA_roomNumber: int):
     return GetChambreParNumero(CHA_roomNumber)

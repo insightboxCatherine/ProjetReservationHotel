@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 import os
 
 from DTO.clientDTO import ClientDTO
-from metier.clientMetier import CreerClient,ChercherClient
+from metier.clientMetier import CreerClient,ChercherClient, ModifierClient
 from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 from metier.chambreMetier import CreerChambre, GetChambreParNumero, CreerTypeChambre
 from DTO.reservationDTO import ReservationDTO
@@ -45,3 +45,7 @@ def delete_reservation(CLI_nom : str):
 @app.post("/creerreservation")
 def Creer_reservation(CLI_nom: str, CHA_roomNumber,reservation: ReservationDTO):
     return CreerReservation(CLI_nom, CHA_roomNumber, reservation)
+
+@app.post("/modifierclient/{client_id}")
+def modifier_client(client_id: str, client_dto: ClientDTO):
+    return ModifierClient(client_id, client_dto)

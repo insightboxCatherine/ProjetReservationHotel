@@ -36,7 +36,9 @@ def GetChambreParNumero(CHA_roomNumber: int):
         for chambre in result.scalars():
              print(f"{chambre.CHA_roomNumber} {chambre.Type_Chambre.TYP_name} {len(chambre.Type_Chambre.chambres)}")
         
-        return {"numÃ©ro de chambre": chambre.CHA_roomNumber,
+        return {"ID chambre": chambre.PKCHA_roomID,
+                "Disponibilité": chambre.CHA_availability,
+                "numéro de chambre": chambre.CHA_roomNumber,
                  "type_chambre" : chambre.Type_Chambre.TYP_name}     
     
 def CreerTypeChambre(type_dto: TypeChambreDTO):    

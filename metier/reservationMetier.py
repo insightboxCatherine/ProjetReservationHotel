@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import os
 
 from DTO.reservationDTO import ReservationDTO
-from modele.chambre import Reservation, Chambre, TypeChambre,Client
+from modele.chambre import Reservation, Chambre, Client
 
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 

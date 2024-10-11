@@ -35,8 +35,8 @@ def create_client(client_dto: ClientDTO):
     return CreerClient(client_dto)
 
 @app.post("/modifierreservation")
-def modify_reservation(CLI_nom : str, reservation : ReservationDTO):
-    return ModifierReservation(CLI_nom, reservation)
+def modify_reservation(PKRES_id: str, reservation : ReservationDTO):
+    return ModifierReservation(PKRES_id, reservation)
 
 @app.post("/supprimerreservation")
 def delete_reservation(CLI_nom : str):

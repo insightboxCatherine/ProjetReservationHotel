@@ -18,7 +18,9 @@ def ModifierReservation(PKRES_id: str, reservation : ReservationDTO):
 
         stmtTypeChambre = select(TypeChambre).where(resultChambre.FK_PKTYP_id == TypeChambre.PKTYP_id)
         resultTypeChambre = session.execute(stmtTypeChambre).scalars().first()
+
         print(type(resultTypeChambre))
+
         if not resultReservation:
             return{"Réservation inexistante"}
         
@@ -49,24 +51,30 @@ def ModifierReservation(PKRES_id: str, reservation : ReservationDTO):
         else:
             return {"Une erreur est survenu"}
 
-def SupprimerReservation(CLI_nom : str):
+def SupprimerReservation(PKRES_id: str):
     with Session(engine) as session:
-        stmtClient = select(Client).join(Reservation, Client.PKCLI_id == Reservation.FK_PKCLI_id).where(Client.CLI_nom == CLI_nom)
+        stmtReservation = select(Reservation).where(Reservation.PKRES_id == PKRES_id)
+        resultReservation = session.execute(stmtReservation).scalars().first()
+        if not resultReservation:
+            return{"Réservation inexistante"}
+
+        stmtChambre = select(Chambre).where(resultReservation.FK_PKCHA_roomID == Chambre.PKCHA_roomID)
+        resultChambre = session.execute(stmtChambre).scalars().first()
+
+
+        stmtClient = select(Client).where(resultReservation.FK_PKCLI_id == Client.PKCLI_id)
         resultClient = session.execute(stmtClient).scalars().first()
 
-        if not resultClient:
-                return{"Client sans réservation ou inexistant"}
-        idClient = resultClient.PKCLI_id
-        idReservation = resultClient.Reservation.PKRES_id
-
-        stmtDeleteReservation = delete(Reservation).where(Reservation.FK_PKCLI_id == idClient)
+        stmtDeleteReservation = delete(Reservation).where(Reservation.PKRES_id == PKRES_id)
         resultDeleteReservation = session.execute(stmtDeleteReservation)
 
         if resultDeleteReservation:
+             resultChambre.CHA_availability = True
              session.commit()
              return{
-                  "La Réservation de ",resultClient.CLI_nom," ",resultClient.CLI_prenom," à été annulée\n",
-                    "ID de la réservation annulée : ", idReservation
+                    "Nom du client " : resultClient.CLI_nom,
+                    "Prénom du client": resultClient.CLI_prenom,
+                    "ID de la réservation annulée " : PKRES_id
              }    
         else:
              return{"Quelque chose n'a pas fonctionnée"}
@@ -74,7 +82,7 @@ def SupprimerReservation(CLI_nom : str):
 def CreerReservation(CLI_nom: str, CHA_roomNumber: int, reservation: ReservationDTO):
     with Session(engine) as session:
         # Rechercher le client
-        stmtClient = select(Client).where(Client.PKCLI_id == reservation.CLI_id)
+        stmtClient = select(Client).where(Client.CLI_nom == CLI_nom)
         resultClient = session.execute(stmtClient).scalars().first()
 
         if not resultClient:
@@ -86,10 +94,16 @@ def CreerReservation(CLI_nom: str, CHA_roomNumber: int, reservation: Reservation
 
         if not resultChambre:
             return {"Erreur": "Chambre inexistante"}
-
-        # Valider que le prix par jour est dans l'intervalle autorisé
-        stmtTypeChambre = select(TypeChambre).where(TypeChambre.PKTYP_id == resultChambre.FK_PKTYP_id)
+        
+        stmtTypeChambre = select(TypeChambre).where(resultChambre.FK_PKTYP_id == TypeChambre.PKTYP_id)
         resultTypeChambre = session.execute(stmtTypeChambre).scalars().first()
+
+        # Vérifier que la chambre est libre pendant la période
+        stmtReservation = select(Reservation).where(
+            Reservation.FK_PKCHA_roomID == resultChambre.PKCHA_roomID,
+            Reservation.RES_startDate < reservation.RES_endDate,
+            Reservation.RES_endDate > reservation.RES_startDate
+        )
 
         validationErreur = ValiderReservation(reservation, resultChambre, resultTypeChambre,session)
         if validationErreur:

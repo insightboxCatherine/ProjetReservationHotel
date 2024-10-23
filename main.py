@@ -39,8 +39,8 @@ def modify_reservation(PKRES_id: str, reservation : ReservationDTO):
     return ModifierReservation(PKRES_id, reservation)
 
 @app.post("/supprimerreservation")
-def delete_reservation(CLI_nom : str):
-    return SupprimerReservation(CLI_nom)
+def delete_reservation(PKRES_id: str):
+    return SupprimerReservation(PKRES_id)
 
 @app.post("/creerreservation")
 def Creer_reservation(CLI_nom: str, CHA_roomNumber,reservation: ReservationDTO):

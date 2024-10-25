@@ -1,13 +1,14 @@
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
+import os
 
 from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 
 from modele.chambre import Chambre, TypeChambre
 
 
-engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
      with Session(engine) as session:
@@ -53,3 +54,19 @@ def CreerTypeChambre(type_dto: TypeChambreDTO):
         except Exception as e:
             session.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+        
+def RechercherChambreLibre():
+    with Session(engine) as session:
+        stmtChambre = select(Chambre).where(Chambre.CHA_availability == True).order_by(Chambre.CHA_roomNumber)
+        resultChambre = session.execute(stmtChambre).scalars().all()
+        if not resultChambre:
+            return{"Aucune chambre libre!! DollaDolla billz!!!"}
+
+        chambresLibres = []
+        for chambre in resultChambre:
+            chambresLibres.append({"ID chambre": chambre.PKCHA_roomID,
+                                   "Disponibilité": chambre.CHA_availability,
+                                   "numéro de chambre": chambre.CHA_roomNumber,
+                                   "type_chambre": chambre.Type_Chambre.TYP_name})
+
+        return{"Chambres Libres": chambresLibres}        

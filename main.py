@@ -1,15 +1,19 @@
-from fastapi import FastAPI
+from datetime import datetime
+from fastapi import FastAPI, HTTPException
 from typing import Union
 from sqlalchemy import create_engine
+import os
+
+import uvicorn
 
 from DTO.clientDTO import ClientDTO
 from metier.clientMetier import CreerClient,ChercherClient
 from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
-from metier.chambreMetier import CreerChambre, GetChambreParNumero, CreerTypeChambre
-from DTO.reservationDTO import ReservationDTO
-from metier.reservationMetier import ModifierReservation, SupprimerReservation, CreerReservation
+from metier.chambreMetier import CreerChambre, GetChambreParNumero, CreerTypeChambre, RechercherChambreLibre
+from DTO.reservationDTO import ReservationDTO, CriteresRechercheDTO
+from metier.reservationMetier import ModifierReservation, SupprimerReservation, CreerReservation, rechercherReservation
 
-engine = create_engine('mssql+pyodbc://CATHB\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 app = FastAPI()
 
@@ -44,3 +48,14 @@ def delete_reservation(CLI_nom : str):
 @app.post("/creerreservation")
 def Creer_reservation(CLI_nom: str, CHA_roomNumber,reservation: ReservationDTO):
     return CreerReservation(CLI_nom, CHA_roomNumber, reservation)
+
+@app.post("/rechercherReservation")
+def rechercher_reservations(prenom: Union[str]=None, nom: Union[str]=None, roomNumber: Union[int]=None, idClient: Union[str]=None, idReservation:Union[str]=None, startDate:Union[datetime]=None, endDate:Union[datetime]=None):
+    try:
+        return rechercherReservation(prenom, nom, roomNumber, idClient, idReservation, startDate, endDate)
+    except ValueError as e:
+        return HTTPException(status_code=404, detail=str(e))
+
+@app.post("/rechercherchambrelibre")
+def rechercher_chambre_libre():
+    return RechercherChambreLibre()     

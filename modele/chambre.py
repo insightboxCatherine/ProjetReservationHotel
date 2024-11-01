@@ -57,3 +57,7 @@ class Reservation(Base):
 
     clients: Mapped[List["Client"]] = relationship(back_populates="Reservation")
     chambre: Mapped["Chambre"] = relationship()
+
+
+     
+

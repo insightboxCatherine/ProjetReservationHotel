@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+__pycache__/main.cpython-312.pyc
+DTO/__pycache__/chambreDTO.cpython-312.pyc
+DTO/__pycache__/clientDTO.cpython-312.pyc
+DTO/__pycache__/reservationDTO.cpython-312.pyc
+metier/__pycache__/chambreMetier.cpython-312.pyc
+metier/__pycache__/clientMetier.cpython-312.pyc
+metier/__pycache__/reservationMetier.cpython-312.pyc
+modele/__pycache__/chambre.cpython-312.pyc
+=======
 # Fichiers de bytecode Python
 __pycache__/
 *.pyc
@@ -20,3 +30,4 @@ env/
 build/
 dist/
 *.egg-info/
+>>>>>>> b7242f0c376309e7e0ff2ec5516f767eecdeeadd

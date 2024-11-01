@@ -190,3 +190,6 @@ def rechercher_chambre_libre(current_user: Annotated[User, Depends(get_current_a
 
 
 #uvicorn.run(app, host="127.0.0.1", port=8000)
+ 
+  
+

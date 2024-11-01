@@ -9,6 +9,7 @@ from modele.chambre import Chambre, TypeChambre
 
 
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
      with Session(engine) as session:
@@ -38,8 +39,8 @@ def GetChambreParNumero(CHA_roomNumber: int):
         
         return {"ID chambre": chambre.PKCHA_roomID,
                 "Disponibilité": chambre.CHA_availability,
-                "numéro de chambre": chambre.CHA_roomNumber,
-                 "type_chambre" : chambre.Type_Chambre.TYP_name}     
+                "numéro de chambre": chambre.CHA_roomNumber}
+         
     
 def CreerTypeChambre(type_dto: TypeChambreDTO):    
     with Session(engine) as session:
@@ -64,6 +65,7 @@ def RechercherChambreLibre():
         if not resultChambre:
             return{"Aucune chambre libre!! DollaDolla billz!!!"}
         
+
         chambresLibres = []
         for chambre in resultChambre:
             chambresLibres.append({"ID chambre": chambre.PKCHA_roomID,

@@ -1,9 +1,10 @@
+from datetime import datetime
 from sqlalchemy import create_engine, select,update,delete
 from sqlalchemy.orm import Session
 from datetime import datetime
 import os
 
-from DTO.reservationDTO import ReservationDTO
+from DTO.reservationDTO import ReservationDTO, CriteresRechercheDTO
 from modele.chambre import Reservation, Chambre, Client, TypeChambre
 
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
@@ -67,6 +68,12 @@ def SupprimerReservation(PKRES_id: str):
         resultClient = session.execute(stmtClient).scalars().first()
 
         stmtDeleteReservation = delete(Reservation).where(Reservation.PKRES_id == PKRES_id)
+        if not resultClient:
+                return{"Client sans réservation ou inexistant"}
+        idClient = resultClient.PKCLI_id
+        idReservation = resultClient.Reservation[0].PKRES_id
+
+        stmtDeleteReservation = delete(Reservation).where(Reservation.FK_PKCLI_id == idClient)
         resultDeleteReservation = session.execute(stmtDeleteReservation)
 
         if resultDeleteReservation:
@@ -152,6 +159,7 @@ def ValiderReservation(reservation: ReservationDTO, resultChambre, resultTypeCha
         
         return None
     
+
 def rechercherReservation(prenom:str, nom: str, roomNumber: int, idClient:str, idReservation:str, startDate:datetime, endDate:datetime):
     with Session(engine) as session:
 
@@ -211,3 +219,4 @@ def rechercherReservation(prenom:str, nom: str, roomNumber: int, idClient:str, i
         if reservations == []:
            return {"Il n'y a pas de réservation selon ce critère!"} 
         return reservations
+

@@ -41,7 +41,7 @@ class Client(Base):
     CLI_courriel: Mapped[str]
     PKCLI_id: Mapped[UUID] = mapped_column(default=uuid4,primary_key=True)
 
-    Reservation: Mapped['Reservation'] = relationship()
+    Reservation: Mapped[List['Reservation']] = relationship()
 
 class Reservation(Base):
     __tablename__ = "Reservation"

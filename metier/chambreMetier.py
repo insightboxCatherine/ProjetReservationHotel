@@ -56,3 +56,20 @@ def CreerTypeChambre(type_dto: TypeChambreDTO):
         except Exception as e:
             session.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+        
+def RechercherChambreLibre():
+    with Session(engine) as session:
+        stmtChambre = select(Chambre).where(Chambre.CHA_availability == True).order_by(Chambre.CHA_roomNumber)
+        resultChambre = session.execute(stmtChambre).scalars().all()
+        if not resultChambre:
+            return{"Aucune chambre libre!! DollaDolla billz!!!"}
+        
+        chambresLibres = []
+        for chambre in resultChambre:
+            chambresLibres.append({"ID chambre": chambre.PKCHA_roomID,
+                                   "Disponibilité": chambre.CHA_availability,
+                                   "numéro de chambre": chambre.CHA_roomNumber,
+                                   "type_chambre": chambre.Type_Chambre.TYP_name})
+            
+        return{"Chambres Libres": chambresLibres}
+        

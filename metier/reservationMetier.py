@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, select,update,delete
 from sqlalchemy.orm import Session
+from datetime import datetime
 import os
 
 from DTO.reservationDTO import ReservationDTO
@@ -150,3 +151,63 @@ def ValiderReservation(reservation: ReservationDTO, resultChambre, resultTypeCha
             return {"Erreur": f"Le prix par jour doit être entre {resultTypeChambre.TYP_minPrice} et {resultTypeChambre.TYP_maxPrice}"}
         
         return None
+    
+def rechercherReservation(prenom:str, nom: str, roomNumber: int, idClient:str, idReservation:str, startDate:datetime, endDate:datetime):
+    with Session(engine) as session:
+
+        # Validation des critères
+        if prenom and len(prenom) > 60:
+            raise ValueError('Le prénom est trop long')
+            
+        if nom and len(nom) > 60:
+            raise ValueError('Le nom est trop long')
+        
+        if not nom and prenom:
+            raise ValueError("La recherche par prénom seulement n'est pas supportée. Veuillez indiquer un nom et prénom.")
+        
+        if roomNumber is not None and not isinstance(roomNumber, int):
+            raise ValueError("Le numéro de chambre doit être un entier valide")
+        
+        if idClient and len(idClient) != 36:
+            raise ValueError("idClient doit contenir 36 caractères")
+        
+        if idReservation and len(idReservation) != 36:
+            raise ValueError("idReservation doit contenir 36 caractères")
+
+        # Construction de la requête
+        stmt = select(Reservation)
+
+        if idReservation:
+            stmt = stmt.where(Reservation.PKRES_id == idReservation)
+        
+        if roomNumber:
+            stmt = stmt.join(Chambre).where(Chambre.CHA_roomNumber == roomNumber)
+
+        if idClient:
+            stmt = stmt.where(Reservation.FK_PKCLI_id == idClient)
+
+        if nom:
+            stmt = stmt.join(Client).where(Client.CLI_nom == nom)
+            if prenom:
+                stmt = stmt.where(Client.CLI_prenom == prenom)
+
+        if startDate: 
+            stmt = stmt.where(
+                Reservation.RES_endDate >= startDate)
+        if endDate:
+            stmt = stmt.where(
+                Reservation.RES_startDate <= endDate)        
+
+        reservations = []
+        for reservation in session.execute(stmt).scalars():
+            reservations.append(ReservationDTO(
+                RES_startDate=reservation.RES_startDate,
+                RES_endDate=reservation.RES_endDate,
+                RES_pricePerDay=reservation.RES_pricePerDay,
+                RES_infoReservation=reservation.RES_infoReservation,
+                idReservation=reservation.PKRES_id
+            ))
+
+        if reservations == []:
+           return {"Il n'y a pas de réservation selon ce critère!"} 
+        return reservations

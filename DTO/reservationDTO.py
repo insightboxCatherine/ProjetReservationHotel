@@ -16,9 +16,12 @@ class CriteresRechercheDTO(BaseModel):
     idReservation: Optional[UUID] = None
 
 class ReservationDTO(BaseModel):
+
     RES_startDate: datetime
     RES_endDate: datetime
     RES_pricePerDay: float
+    RES_infoReservation: str
+    
     RES_infoReservation: str = None 
     idReservation: UUID
   

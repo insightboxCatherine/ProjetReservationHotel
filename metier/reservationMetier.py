@@ -1,12 +1,14 @@
 from datetime import datetime
 from sqlalchemy import create_engine, select,update,delete
 from sqlalchemy.orm import Session
+from datetime import datetime
 import os
 
 from DTO.reservationDTO import ReservationDTO, CriteresRechercheDTO
 from modele.chambre import Reservation, Chambre, Client, TypeChambre
 
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
+
 
 def ModifierReservation(PKRES_id: str, reservation : ReservationDTO):
     with Session(engine) as session:
@@ -51,11 +53,21 @@ def ModifierReservation(PKRES_id: str, reservation : ReservationDTO):
         else:
             return {"Une erreur est survenu"}
 
-def SupprimerReservation(CLI_nom : str):
+def SupprimerReservation(PKRES_id: str):
     with Session(engine) as session:
-        stmtClient = select(Client).join(Reservation, Client.PKCLI_id == Reservation.FK_PKCLI_id).where(Client.CLI_nom == CLI_nom)
+        stmtReservation = select(Reservation).where(Reservation.PKRES_id == PKRES_id)
+        resultReservation = session.execute(stmtReservation).scalars().first()
+        if not resultReservation:
+            return{"Réservation inexistante"}
+
+        stmtChambre = select(Chambre).where(resultReservation.FK_PKCHA_roomID == Chambre.PKCHA_roomID)
+        resultChambre = session.execute(stmtChambre).scalars().first()
+
+
+        stmtClient = select(Client).where(resultReservation.FK_PKCLI_id == Client.PKCLI_id)
         resultClient = session.execute(stmtClient).scalars().first()
 
+        stmtDeleteReservation = delete(Reservation).where(Reservation.PKRES_id == PKRES_id)
         if not resultClient:
                 return{"Client sans réservation ou inexistant"}
         idClient = resultClient.PKCLI_id
@@ -65,10 +77,12 @@ def SupprimerReservation(CLI_nom : str):
         resultDeleteReservation = session.execute(stmtDeleteReservation)
 
         if resultDeleteReservation:
+             resultChambre.CHA_availability = True
              session.commit()
              return{
-                  "La Réservation de ",resultClient.CLI_nom," ",resultClient.CLI_prenom," à été annulée\n",
-                    "ID de la réservation annulée : ", idReservation
+                    "Nom du client " : resultClient.CLI_nom,
+                    "Prénom du client": resultClient.CLI_prenom,
+                    "ID de la réservation annulée " : PKRES_id
              }    
         else:
              return{"Quelque chose n'a pas fonctionnée"}
@@ -98,6 +112,7 @@ def CreerReservation(CLI_nom: str, CHA_roomNumber: int, reservation: Reservation
             Reservation.RES_startDate < reservation.RES_endDate,
             Reservation.RES_endDate > reservation.RES_startDate
         )
+
         validationErreur = ValiderReservation(reservation, resultChambre, resultTypeChambre,session)
         if validationErreur:
             return validationErreur
@@ -143,6 +158,7 @@ def ValiderReservation(reservation: ReservationDTO, resultChambre, resultTypeCha
             return {"Erreur": f"Le prix par jour doit être entre {resultTypeChambre.TYP_minPrice} et {resultTypeChambre.TYP_maxPrice}"}
         
         return None
+    
 
 def rechercherReservation(prenom:str, nom: str, roomNumber: int, idClient:str, idReservation:str, startDate:datetime, endDate:datetime):
     with Session(engine) as session:

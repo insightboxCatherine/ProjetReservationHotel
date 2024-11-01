@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from sqlalchemy import create_engine
 from datetime import datetime, timedelta, timezone
 import jwt
+import uvicorn
 import os
 
 from DTO.clientDTO import ClientDTO
@@ -186,6 +187,9 @@ def rechercher_reservations(current_user: Annotated[User, Depends(get_current_ac
 @app.post("/rechercherchambrelibre")
 def rechercher_chambre_libre(current_user: Annotated[User, Depends(get_current_active_user)]):
     return RechercherChambreLibre()
+
+
+#uvicorn.run(app, host="127.0.0.1", port=8000)
  
   
 

@@ -8,6 +8,7 @@ from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 from modele.chambre import Chambre, TypeChambre
 
 
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
@@ -36,8 +37,10 @@ def GetChambreParNumero(CHA_roomNumber: int):
         for chambre in result.scalars():
              print(f"{chambre.CHA_roomNumber} {chambre.Type_Chambre.TYP_name} {len(chambre.Type_Chambre.chambres)}")
         
-        return {"numéro de chambre": chambre.CHA_roomNumber,
-                 "type_chambre" : chambre.Type_Chambre.TYP_name}     
+        return {"ID chambre": chambre.PKCHA_roomID,
+                "Disponibilité": chambre.CHA_availability,
+                "numéro de chambre": chambre.CHA_roomNumber}
+         
     
 def CreerTypeChambre(type_dto: TypeChambreDTO):    
     with Session(engine) as session:
@@ -61,6 +64,7 @@ def RechercherChambreLibre():
         resultChambre = session.execute(stmtChambre).scalars().all()
         if not resultChambre:
             return{"Aucune chambre libre!! DollaDolla billz!!!"}
+        
 
         chambresLibres = []
         for chambre in resultChambre:
@@ -68,5 +72,6 @@ def RechercherChambreLibre():
                                    "Disponibilité": chambre.CHA_availability,
                                    "numéro de chambre": chambre.CHA_roomNumber,
                                    "type_chambre": chambre.Type_Chambre.TYP_name})
-
-        return{"Chambres Libres": chambresLibres}        
+            
+        return{"Chambres Libres": chambresLibres}
+        

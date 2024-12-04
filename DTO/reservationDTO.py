@@ -21,4 +21,9 @@ class ReservationDTO(BaseModel):
     RES_pricePerDay: float
     RES_infoReservation: str = None 
     idReservation: UUID
-  
+    roomNumber: int
+
+class ReservationInput(BaseModel):
+    CLI_nom: str
+    CHA_roomNumber: int
+    reservation: ReservationDTO  

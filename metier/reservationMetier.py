@@ -197,7 +197,10 @@ def rechercherReservation(prenom:str, nom: str, roomNumber: int, idClient:str, i
                 RES_endDate=reservation.RES_endDate,
                 RES_pricePerDay=reservation.RES_pricePerDay,
                 RES_infoReservation=reservation.RES_infoReservation,
-                idReservation=reservation.PKRES_id
+                idReservation=reservation.PKRES_id,
+                roomNumber=reservation.chambre.CHA_roomNumber
+                
+                
             ))
 
         if reservations == []:

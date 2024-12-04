@@ -11,3 +11,7 @@ class TypeChambreDTO(BaseModel):
     TYP_maxPrice: float
     TYP_minPrice: float
     TYP_description : str
+    
+class DateRange(BaseModel):
+    startDate: str
+    endDate: str    

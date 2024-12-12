@@ -8,19 +8,25 @@ from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 
 from modele.chambre import Chambre, Reservation, TypeChambre
 
-
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
      with Session(engine) as session:
-        stmt = select(TypeChambre).where(TypeChambre.TYP_name == chambre.Type_chambre)
+
+        # Vérifier que la chambre n'existe pas déjà
+        subquery = select(Chambre).where(Chambre.CHA_roomNumber == chambre.CHA_roomNumber)
+        subresult = session.execute(subquery)
+        if subresult.fetchone():
+            return {"Erreur": "Chambre déjà existante"}
+        
+        # Créer la chambre
+        stmt = select(TypeChambre).where(TypeChambre.PKTYP_id == chambre.Type_chambre)
         result = session.execute(stmt)
         
         for typeChambre in result.scalars():
             
             nouvelleChambre = Chambre(
             CHA_roomNumber = chambre.CHA_roomNumber,
-            CHA_availability = chambre.CHA_availability,
             CHA_otherInfo = chambre.CHA_otherInfo,
             Type_Chambre = typeChambre
             )
@@ -32,13 +38,16 @@ def CreerChambre(chambre: ChambreDTO):
      
 def GetChambreParNumero(CHA_roomNumber: int):
     with Session(engine) as session:
-        stmt = select(Chambre).where(Chambre.CHA_roomNumber == CHA_roomNumber)
-        result = session.execute(stmt)
-        for chambre in result.scalars():
+        try:
+            stmt = select(Chambre).where(Chambre.CHA_roomNumber == CHA_roomNumber)
+            result = session.execute(stmt)
+            for chambre in result.scalars():
              print(f"{chambre.CHA_roomNumber} {chambre.Type_Chambre.TYP_name} {len(chambre.Type_Chambre.chambres)}")
         
-        return {"numero_chambre": chambre.CHA_roomNumber,
-                 "type_chambre" : chambre.Type_Chambre.TYP_name}     
+            return {"numero_chambre": chambre.CHA_roomNumber,
+                    "type_chambre" : chambre.Type_Chambre.TYP_name}
+        except Exception as e:
+            return {"Erreur" : "Cette chambre est introuvable."}
     
 def CreerTypeChambre(type_dto: TypeChambreDTO):    
     with Session(engine) as session:
@@ -57,6 +66,8 @@ def CreerTypeChambre(type_dto: TypeChambreDTO):
             raise HTTPException(status_code=500, detail=str(e))
         
 def RechercherChambreLibre(startDate, endDate):
+    if startDate > endDate:
+        return {"Erreur": "La date de début doit être avant la date de fin."}
     with Session(engine) as session:
         #Subquery to get rooms in reservation
         subquery = (
@@ -75,28 +86,16 @@ def RechercherChambreLibre(startDate, endDate):
             select(Chambre)
             .where(not_(subquery.exists()))
         ).order_by(Chambre.CHA_roomNumber)
-
-        '''# Requête pour trouver les chambres qui ne sont pas réservées pendant la plage horaire donnée
-        stmtChambre = select(Chambre).where(
-            Chambre.CHA_availability == True,
-            ~Chambre.reservations.any(
-                and_(
-                    Reservation.RES_startDate <= endDate,
-                    Reservation.RES_endDate >= startDate
-                )
-            )
-        ).order_by(Chambre.CHA_roomNumber)'''
         
         resultChambre = session.execute(stmtChambre).scalars().all()
         
         if not resultChambre:
-            return {"message": "Aucune chambre libre pour cette période."}
+            return {"Erreur": "Aucune chambre libre pour cette période."}
 
         chambresLibres = []
         for chambre in resultChambre:
             chambresLibres.append({
                 "ID chambre": chambre.PKCHA_roomID,
-                "Disponibilité": chambre.CHA_availability,
                 "numéro de chambre": chambre.CHA_roomNumber,
                 "type_chambre": chambre.Type_Chambre.TYP_name
             })

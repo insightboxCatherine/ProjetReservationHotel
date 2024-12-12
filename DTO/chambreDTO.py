@@ -1,10 +1,10 @@
 from pydantic import BaseModel
+from uuid import UUID
 
 class ChambreDTO(BaseModel): 
     CHA_roomNumber: int
-    CHA_availability : bool
     CHA_otherInfo: str
-    Type_chambre: str
+    Type_chambre: UUID
 
 class TypeChambreDTO(BaseModel): 
     TYP_name: str

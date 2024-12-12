@@ -1,5 +1,5 @@
 from typing import List
-from datetime import datetime
+from datetime import date, datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
 from uuid import UUID, uuid4
@@ -11,7 +11,6 @@ class Chambre(Base):
     __tablename__ = "Chambre"
 
     CHA_roomNumber: Mapped[int]
-    CHA_availability: Mapped[bool]
     CHA_otherInfo: Mapped[str]
     PKCHA_roomID: Mapped[UUID] = mapped_column(default=uuid4,primary_key=True)
     FK_PKTYP_id: Mapped[str] = mapped_column(ForeignKey("Type_Chambre.PKTYP_id"))
@@ -46,8 +45,8 @@ class Client(Base):
 class Reservation(Base):
     __tablename__ = "Reservation"
 
-    RES_startDate: Mapped[datetime]
-    RES_endDate: Mapped[datetime]
+    RES_startDate: Mapped[date]
+    RES_endDate: Mapped[date]
     RES_pricePerDay: Mapped[float]
     RES_infoReservation: Mapped[str]
     PKRES_id: Mapped[UUID] = mapped_column(default=uuid4,primary_key=True)

@@ -1,7 +1,6 @@
+import os
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select, update
-import os
-
 from DTO.clientDTO import ClientDTO
 from modele.chambre import Client
 

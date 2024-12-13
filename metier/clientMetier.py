@@ -1,5 +1,6 @@
 import os
 from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, select,update
 from sqlalchemy import create_engine, select, update
 from DTO.clientDTO import ClientDTO
 from modele.chambre import Client
@@ -107,6 +108,8 @@ def ModifierClient(client_id: str,client_dto: ClientDTO):
                 "Mobile": resultClient.CLI_mobile,
                 "Courriel": resultClient.CLI_courriel,
             }
+
+
         
         return{"Client modifié avec succès"}
      
@@ -123,3 +126,4 @@ def ValidationClient(client_dto: ClientDTO, session: Session):
             return {"error": "Le numéro de mobile est déjà utilisé."}
         
         return None
+

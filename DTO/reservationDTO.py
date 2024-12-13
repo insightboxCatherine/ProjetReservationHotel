@@ -26,3 +26,4 @@ class ReservationInput(BaseModel):
     CLI_nom: str
     CHA_roomNumber: int
     reservation: ReservationDTO  
+

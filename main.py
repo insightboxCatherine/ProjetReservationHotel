@@ -8,6 +8,7 @@ from passlib.context import CryptContext
 from sqlalchemy import create_engine, select
 from datetime import date, datetime, timedelta, timezone
 import jwt
+import uvicorn
 import os
 from DTO.clientDTO import ClientDTO
 from metier.clientMetier import CreerClient,ChercherClient, ModifierClient

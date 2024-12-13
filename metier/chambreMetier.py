@@ -8,6 +8,7 @@ from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
 
 from modele.chambre import Chambre, Reservation, TypeChambre
 
+engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL+Server', use_setinputsizes=False)
 
 def CreerChambre(chambre: ChambreDTO):
@@ -43,7 +44,7 @@ def GetChambreParNumero(CHA_roomNumber: int):
             result = session.execute(stmt)
             for chambre in result.scalars():
              print(f"{chambre.CHA_roomNumber} {chambre.Type_Chambre.TYP_name} {len(chambre.Type_Chambre.chambres)}")
-        
+       
             return {"numero_chambre": chambre.CHA_roomNumber,
                     "type_chambre" : chambre.Type_Chambre.TYP_name}
         except Exception as e:

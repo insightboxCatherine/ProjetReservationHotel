@@ -1,21 +1,22 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Union, Annotated
 from pydantic import BaseModel
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
-from sqlalchemy import create_engine
-from datetime import datetime, timedelta, timezone
+from sqlalchemy import create_engine, select
+from datetime import date, datetime, timedelta, timezone
 import jwt
 import uvicorn
 import os
-
 from DTO.clientDTO import ClientDTO
 from metier.clientMetier import CreerClient,ChercherClient, ModifierClient
-from DTO.chambreDTO import ChambreDTO, TypeChambreDTO
+from DTO.chambreDTO import ChambreDTO, DateRange, TypeChambreDTO
 from metier.chambreMetier import CreerChambre, GetChambreParNumero, CreerTypeChambre, RechercherChambreLibre
-from DTO.reservationDTO import ReservationDTO
+from DTO.reservationDTO import ReservationDTO, CriteresRechercheDTO
 from metier.reservationMetier import ModifierReservation, SupprimerReservation, CreerReservation, rechercherReservation
+from metier.listetypeschambre import ListeTypesChambres
 
 engine = create_engine(f'mssql+pyodbc://{os.environ['COMPUTERNAME']}\\SQLEXPRESS/Hotel?driver=SQL Server', use_setinputsizes=False)
 
@@ -37,7 +38,6 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-
 class TokenData(BaseModel):
     username: str | None = None
 
@@ -55,6 +55,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -134,14 +144,13 @@ async def read_users_me(
 ):
     return current_user
 
-
 @app.get("/users/me/items/")
 async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
 
-@app.get("/chambre/{No_chambre}")
+@app.get("/chambre")
 def read_item(current_user: Annotated[User, Depends(get_current_active_user)], CHA_roomNumber: int):
     return GetChambreParNumero(CHA_roomNumber)
 
@@ -170,26 +179,43 @@ def delete_reservation(current_user: Annotated[User, Depends(get_current_active_
     return SupprimerReservation(PKRES_id)
 
 @app.post("/creerreservation")
-def Creer_reservation(current_user: Annotated[User, Depends(get_current_active_user)], CLI_nom: str, CHA_roomNumber,reservation: ReservationDTO):
-    return CreerReservation(CLI_nom, CHA_roomNumber, reservation)
-
+def Creer_reservation(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    CLI_nom: str,
+    CHA_roomNumber: int,
+    reservation: ReservationDTO,
+): return CreerReservation(CLI_nom, CHA_roomNumber, reservation)
+  
 @app.post("/modifierclient/{client_id}")
 def modifier_client(current_user: Annotated[User, Depends(get_current_active_user)], client_id: str, client_dto: ClientDTO):
     return ModifierClient(client_id, client_dto)
 
 @app.post("/rechercherReservation")
-def rechercher_reservations(current_user: Annotated[User, Depends(get_current_active_user)], prenom: Union[str]=None, nom: Union[str]=None, roomNumber: Union[int]=None, idClient: Union[str]=None, idReservation:Union[str]=None, startDate:Union[datetime]=None, endDate:Union[datetime]=None):
-    try:
-        return rechercherReservation(prenom, nom, roomNumber, idClient, idReservation, startDate, endDate)
-    except ValueError as e:
-        return HTTPException(status_code=404, detail=str(e))
+def rechercher_reservations(current_user: Annotated[User,Depends(get_current_active_user)], criteres: CriteresRechercheDTO):
+    prenom = criteres.prenom
+    nom = criteres.nom
+    roomNumber = criteres.roomNumber
+    startDate = criteres.startDate
+    endDate = criteres.endDate
+    return rechercherReservation(prenom, nom, roomNumber, startDate, endDate)
 
 @app.post("/rechercherchambrelibre")
-def rechercher_chambre_libre(current_user: Annotated[User, Depends(get_current_active_user)]):
-    return RechercherChambreLibre()
+def rechercher_chambre_libre(
+    date_range: DateRange,
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    startDate = date_range.startDate
+    endDate = date_range.endDate
 
+    # Validation des dates
+    if not startDate or not endDate:
+        raise HTTPException(status_code=400, detail="Les dates de début et de fin sont requises.")
 
-#uvicorn.run(app, host="127.0.0.1", port=8000)
- 
-  
+    # Appel à la fonction RechercherChambreLibre avec les dates
+    return RechercherChambreLibre(startDate, endDate)
 
+@app.get("/listetypeschambres")
+def list_types_chambres(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return ListeTypesChambres()

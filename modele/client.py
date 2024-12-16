@@ -1,10 +1,8 @@
 from typing import List
-
 from sqlalchemy import Column, ForeignKey, DateTime, Float, String
 from sqlalchemy.orm import relationship
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
-
 from modele.chambre import Base
 
 class Reservation(Base):
